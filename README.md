@@ -1,4 +1,4 @@
-This is comprised of badly written code and some unit tests. The overall objective is to refactor the code and keep the tests passing.
+This is comprised of badly written code and some unit tests. The overall objective is to refactor the code and keep the tests passing, however there are actually no rules here so if you want to change the tests thats also fine.
 
 Fork, create a branch & pull request. Invite us: shahnmiddleton-re-leased, tonyschollum
 
