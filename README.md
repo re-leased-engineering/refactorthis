@@ -13,7 +13,7 @@ The overall objective is to refactor the code and keep the tests passing.  There
 ## Expectations
 * We expect this will take you between 1 and 2 hours.  We are not expecting you to spend significantly longer on this task.
 * Do enough to show us what your approach will be and how you would organise things.
-* We will likely ask you to explain/justify your solution, patterns used
+* We will likely ask you to explain/justify your solution in one of the interview rounds.
 
 ## Submission
 * Clone this repository and push it to a private repository under your own account. (You are welcome to fork the repository, but that will be publically visible.)
