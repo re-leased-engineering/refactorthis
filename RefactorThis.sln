@@ -6,10 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefactorThis.Domain.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefactorThis.Persistence", "RefactorThis.Persistence\RefactorThis.Persistence.csproj", "{50F3F93C-6688-4B4B-8B30-3BDF6FA4485F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{BBF15EAA-B29F-45C6-A09E-FB8A5013C54A}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{CA7EE1F5-DC76-405A-B21E-DA75E274DA10}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,8 +26,5 @@ Global
 		{50F3F93C-6688-4B4B-8B30-3BDF6FA4485F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{5310B2FE-E26D-414E-B656-1F74C5A70368} = {BBF15EAA-B29F-45C6-A09E-FB8A5013C54A}
-		{7971BDEC-EAD1-4FB8-A4F5-B1F67E4F6355} = {BBF15EAA-B29F-45C6-A09E-FB8A5013C54A}
-		{50F3F93C-6688-4B4B-8B30-3BDF6FA4485F} = {CA7EE1F5-DC76-405A-B21E-DA75E274DA10}
 	EndGlobalSection
 EndGlobal

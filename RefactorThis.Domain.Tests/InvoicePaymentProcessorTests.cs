@@ -14,7 +14,7 @@ namespace RefactorThis.Domain.Tests
 			var repo = new InvoiceRepository( );
 
 			Invoice invoice = null;
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( );
 			var failureMessage = "";
@@ -45,7 +45,7 @@ namespace RefactorThis.Domain.Tests
 
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( );
 
@@ -73,7 +73,7 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( );
 
@@ -100,7 +100,7 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( )
 			{
@@ -124,7 +124,7 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( )
 			{
@@ -154,7 +154,7 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( )
 			{
@@ -178,7 +178,7 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( )
 			{
@@ -208,7 +208,7 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( )
 			{
@@ -232,7 +232,7 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoicePaymentProcessor( repo );
+			var paymentProcessor = new InvoiceService( repo );
 
 			var payment = new Payment( )
 			{
