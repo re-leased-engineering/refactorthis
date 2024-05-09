@@ -1,17 +1,21 @@
 using System;
 using System.Linq;
 using RefactorThis.Persistence;
+using Microsoft.Extensions.Logging; // Used this package for logging purposes and to improve debuggability.
 
 namespace RefactorThis.Domain
 {
     //Register this in Dependency Injection Service
     public class InvoiceService : IInvoiceService
     {
+		private readonly IInvoiceRepository _invoiceRepository;
+        private readonly ILogger<InvoiceService> _logger;
 
-		public InvoiceService( InvoiceRepository invoiceRepository )
+        public InvoiceService(IInvoiceRepository invoiceRepository, ILogger<InvoiceService> logger)
 		{
 			_invoiceRepository = invoiceRepository;
-		}
+            _logger = logger;
+        }
 
 		public string ProcessPayment( Payment payment )
 		{
@@ -146,4 +150,21 @@ namespace RefactorThis.Domain
 			return responseMessage;
 		}
 	}
+            catch (Exception ex)
+            {
+                LogError($"Method:[ProcessPayment] An error occurred while processing payment: {ex.Message}, stackTrace: {ex.StackTrace}");
+                LogError($"Method:[GetInvoice] An error occurred while fetching invoice: {ex.Message}, stackTrace: {ex.StackTrace}");
+            {
+                LogError($"Method:[SaveInvoice] An error occurred while saving invoice: {ex.Message}, stackTrace: {ex.StackTrace}");
+            catch (Exception ex)
+            {
+                LogError($"Method:[HandleNewPayment] An error occurred while handling new payment: {ex.Message}, stackTrace: {ex.StackTrace}");
+            }
+        //Method for adding error logs.
+        //For now it's isolated for payment processing but it's recommended to make it global and re-usable
+        private void LogError(string errorMessage)
+        {
+            _logger.LogError(errorMessage);
+        }
+    }
 }
