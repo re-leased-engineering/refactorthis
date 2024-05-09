@@ -12,243 +12,303 @@ using Xunit; // I used unit test so I can run my test cases
 
 namespace RefactorThis.Domain.Tests
 {
-	[TestFixture]
 	public class InvoicePaymentProcessorTests
 	{
-		[Test]
-		public void ProcessPayment_Should_ThrowException_When_NoInoiceFoundForPaymentReference( )
-		{
-			var repo = new InvoiceRepository( );
+        [Fact]
+        public async Task ProcessPayment_Should_ThrowException_When_NoInvoiceFoundForPaymentReference()
+        {
+            // Arrange
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
+            mockInvoiceRepository.Setup(repo => repo.GetInvoice(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                                  .ReturnsAsync((Invoice)null); // Mock returning null for any reference
 
-			Invoice invoice = null;
-			var paymentProcessor = new InvoiceService( repo );
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
 
-			var payment = new Payment( );
-			var failureMessage = "";
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
 
-			try
-			{
-				var result = paymentProcessor.ProcessPayment( payment );
-			}
-			catch ( InvalidOperationException e )
-			{
-				failureMessage = e.Message;
-			}
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                invoiceService.ProcessPayment(new Payment { Reference = "PAY001" })
+            );
 
-			Assert.AreEqual( "There is no invoice matching this payment", failureMessage );
-		}
+            Assert.NotNull(exception);
+        }
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_NoPaymentNeeded( )
-		{
-			var repo = new InvoiceRepository( );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFailureMessage_When_NoPaymentNeeded()
+        {
+            // Arrange
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
 
-			var invoice = new Invoice( repo )
-			{
-				Amount = 0,
-				AmountPaid = 0,
-				Payments = null
-			};
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
 
-			repo.Add( invoice );
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
 
-			var paymentProcessor = new InvoiceService( repo );
+            var payment = new Payment
+            {
+                Reference = "PAY001",
+                Amount = 0 // Payment amount is set to 0
+            };
 
-			var payment = new Payment( );
+            // Mock the GetInvoice method to return an invoice with amount 0
+            mockInvoiceRepository.Setup(repo => repo.GetInvoice(payment.Reference, CancellationToken.None))
+                .ReturnsAsync(new Invoice
+                {
+                    AmountPaid = 0,
+                    Amount = 0,
+                    Payments = null
+                });
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            // Act
+            var result = await invoiceService.ProcessPayment(payment);
 
-			Assert.AreEqual( "no payment needed", result );
-		}
+            // Assert
+            Assert.Equal("No payment needed", result);
+        }
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_InvoiceAlreadyFullyPaid( )
-		{
-			var repo = new InvoiceRepository( );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFailureMessage_When_InvoiceAlreadyFullyPaid()
+        {
+            // Arrange
+            var mockRepository = new Mock<IInvoiceRepository>();
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
 
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 10,
-				Payments = new List<Payment>
-				{
-					new Payment
-					{
-						Amount = 10
-					}
-				}
-			};
-			repo.Add( invoice );
+            // Creating a sample fully paid invoice for the test
+            var paymentList = new List<Payment>
+            {
+                new Payment
+                {
+                    Amount = 10
+                }
+            };
 
-			var paymentProcessor = new InvoiceService( repo );
+            var fullyPaidInvoice = new Invoice
+            {
+                Amount = 10,
+                AmountPaid = 10,
+                Payments = paymentList
+            };
 
-			var payment = new Payment( );
+            // Setting up mock behavior for the repository
+            mockRepository.Setup(repo => repo.GetInvoice(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(fullyPaidInvoice);
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            // Creating the invoice service instance with mocked dependencies
+            var invoiceService = new InvoiceService(mockRepository.Object, mockLogger.Object);
 
-			Assert.AreEqual( "invoice was already fully paid", result );
-		}
+            // Act
+            var result = await invoiceService.ProcessPayment(new Payment { Reference = "PAY001", Amount = 50 });
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_PartialPaymentExistsAndAmountPaidExceedsAmountDue( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 5,
-				Payments = new List<Payment>
-				{
-					new Payment
-					{
-						Amount = 5
-					}
-				}
-			};
-			repo.Add( invoice );
+            // Assert
+            Assert.Equal("Invoice was already fully paid", result);
+        }
 
-			var paymentProcessor = new InvoiceService( repo );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFailureMessage_When_PartialPaymentExistsAndAmountPaidExceedsAmountDue()
+        {
+            // Arrange
+            var reference = "PAY001";
+            var payment = new Payment { Reference = reference, Amount = 6 };
 
-			var payment = new Payment( )
-			{
-				Amount = 6
-			};
+            var invoice = new Invoice { 
+                Amount = 10, 
+                AmountPaid = 5,
+                Payments = new List<Payment>
+                {
+                    new Payment
+                    {
+                        Amount = 5
+                    }
+                }
+            };
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            var invoiceRepositoryMock = new Mock<IInvoiceRepository>();
 
-			Assert.AreEqual( "the payment is greater than the partial amount remaining", result );
-		}
+            invoiceRepositoryMock.Setup(repo => repo.GetInvoice(reference, It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_NoPartialPaymentExistsAndAmountPaidExceedsInvoiceAmount( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 5,
-				AmountPaid = 0,
-				Payments = new List<Payment>( )
-			};
-			repo.Add( invoice );
+            var loggerMock = new Mock<ILogger<InvoiceService>>();
 
-			var paymentProcessor = new InvoiceService( repo );
+            var invoiceService = new InvoiceService(invoiceRepositoryMock.Object, loggerMock.Object);
 
-			var payment = new Payment( )
-			{
-				Amount = 6
-			};
+            // Act
+            var result = await invoiceService.ProcessPayment(payment);
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            // Assert
+            Assert.Equal("The payment is greater than the partial amount remaining", result);
+        }
 
-			Assert.AreEqual( "the payment is greater than the invoice amount", result );
-		}
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFailureMessage_When_NoPartialPaymentExistsAndAmountPaidExceedsInvoiceAmount()
+        {
+            // Arrange
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFullyPaidMessage_When_PartialPaymentExistsAndAmountPaidEqualsAmountDue( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 5,
-				Payments = new List<Payment>
-				{
-					new Payment
-					{
-						Amount = 5
-					}
-				}
-			};
-			repo.Add( invoice );
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
 
-			var paymentProcessor = new InvoiceService( repo );
+            var payment = new Payment
+            {
+                Reference = "PAY001",
+                Amount = 150 // Exceeds invoice amount
+            };
 
-			var payment = new Payment( )
-			{
-				Amount = 5
-			};
+            var invoice = new Invoice
+            {
+                Amount = 100,
+                AmountPaid = 0,
+                Payments = new List<Payment>()
+            };
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            mockInvoiceRepository.Setup(repo => repo.GetInvoice(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
-			Assert.AreEqual( "final partial payment received, invoice is now fully paid", result );
-		}
+            // Act
+            var result = await invoiceService.ProcessPayment(payment);
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFullyPaidMessage_When_NoPartialPaymentExistsAndAmountPaidEqualsInvoiceAmount( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 0,
-				Payments = new List<Payment>( ) { new Payment( ) { Amount = 10 } }
-			};
-			repo.Add( invoice );
+            // Assert
+            Assert.Equal("The payment is greater than the invoice amount", result);
+        }
 
-			var paymentProcessor = new InvoiceService( repo );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFullyPaidMessage_When_PartialPaymentExistsAndAmountPaidEqualsAmountDue()
+        {
+            // Arrange
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
 
-			var payment = new Payment( )
-			{
-				Amount = 10
-			};
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            var payment = new Payment
+            {
+                Reference = "PAY001",
+                Amount = 5 // Partial payment
+            };
 
-			Assert.AreEqual( "invoice was already fully paid", result );
-		}
+            var invoice = new Invoice
+            {
+                Amount = 10,
+                AmountPaid = 5, // Partial payment already made
+                Payments = new List<Payment>
+                {
+                    new Payment
+                    {
+                        Amount = 5
+                    }
+                }
+            };
 
-		[Test]
-		public void ProcessPayment_Should_ReturnPartiallyPaidMessage_When_PartialPaymentExistsAndAmountPaidIsLessThanAmountDue( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 5,
-				Payments = new List<Payment>
-				{
-					new Payment
-					{
-						Amount = 5
-					}
-				}
-			};
-			repo.Add( invoice );
+            mockInvoiceRepository.Setup(repo => repo.GetInvoice(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(invoice);
 
-			var paymentProcessor = new InvoiceService( repo );
+            // Act
+            var result = await invoiceService.ProcessPayment(payment);
 
-			var payment = new Payment( )
-			{
-				Amount = 1
-			};
+            // Assert
+            Assert.Equal("Final partial payment received, invoice is now fully paid", result);
+        }
 
-			var result = paymentProcessor.ProcessPayment( payment );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFullyPaidMessage_When_NoPartialPaymentExistsAndAmountPaidEqualsInvoiceAmount()
+        {
+            // Arrange
+            var reference = "PAY001";
 
-			Assert.AreEqual( "another partial payment received, still not fully paid", result );
-		}
+            var payment = new Payment { 
+                Reference = reference, 
+                Amount = 10 
+            };
 
-		[Test]
-		public void ProcessPayment_Should_ReturnPartiallyPaidMessage_When_NoPartialPaymentExistsAndAmountPaidIsLessThanInvoiceAmount( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 0,
-				Payments = new List<Payment>( )
-			};
-			repo.Add( invoice );
+            var invoice = new Invoice { 
+                Amount = 10, 
+                AmountPaid = 0,
+                Payments = new List<Payment>
+                {
+                    new Payment
+                    {
+                        Amount = 10
+                    }
+                }
+            };
 
-			var paymentProcessor = new InvoiceService( repo );
 
-			var payment = new Payment( )
-			{
-				Amount = 1
-			};
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            mockInvoiceRepository.Setup(repo => repo.GetInvoice(reference, default(CancellationToken))).ReturnsAsync(invoice);
 
-			Assert.AreEqual( "invoice is now partially paid", result );
-		}
-	}
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
+
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
+
+            // Act
+            var result = await invoiceService.ProcessPayment(payment);
+
+            // Assert
+            Assert.Equal("Invoice was already fully paid", result);
+        }
+
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnPartiallyPaidMessage_When_PartialPaymentExistsAndAmountPaidIsLessThanAmountDue()
+        {
+            // Arrange
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
+
+            var payment = new Payment
+            {
+                Reference = "PAY001",
+                Amount = 1
+            };
+
+            var invoice = new Invoice
+            {
+                Amount = 10, 
+                AmountPaid = 5,
+                Payments = new List<Payment>
+                {
+                    new Payment { Amount = 5 }
+                }
+            };
+
+            mockInvoiceRepository.Setup(r => r.GetInvoice(It.IsAny<string>(), default))
+                                 .ReturnsAsync(invoice);
+
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
+
+            // Act
+            var result = await invoiceService.ProcessPayment(payment);
+
+            // Assert
+            Assert.Equal("Another partial payment received, still not fully paid", result);
+        }
+
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnPartiallyPaidMessage_When_NoPartialPaymentExistsAndAmountPaidIsLessThanInvoiceAmount()
+        {
+            // Arrange
+            var reference = "PAY001";
+
+            var payment = new Payment
+            {
+                Reference = reference,
+                Amount = 1
+            };
+            var invoice = new Invoice
+            {
+                Amount = 10,
+                AmountPaid = 0,
+                Payments = new List<Payment>()
+            };
+
+            var mockRepository = new Mock<IInvoiceRepository>();
+            mockRepository.Setup(repo => repo.GetInvoice(reference, CancellationToken.None))
+                .ReturnsAsync(invoice);
+
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
+
+            var invoiceService = new InvoiceService(mockRepository.Object, mockLogger.Object);
+
+            // Act
+            var response = await invoiceService.ProcessPayment(payment);
+
+            // Assert
+            Assert.Equal("Invoice is now partially paid", response);
+        }
 }
