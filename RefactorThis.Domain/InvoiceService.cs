@@ -150,12 +150,28 @@ namespace RefactorThis.Domain
 			return responseMessage;
 		}
 	}
+            }
             catch (Exception ex)
             {
                 LogError($"Method:[ProcessPayment] An error occurred while processing payment: {ex.Message}, stackTrace: {ex.StackTrace}");
+
+                throw ex;
+            }
+            catch (Exception ex)
+            {
                 LogError($"Method:[GetInvoice] An error occurred while fetching invoice: {ex.Message}, stackTrace: {ex.StackTrace}");
+
+                return null;
+            }
+            catch (Exception ex)
             {
                 LogError($"Method:[SaveInvoice] An error occurred while saving invoice: {ex.Message}, stackTrace: {ex.StackTrace}");
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                LogError($"Method:[HandleExistingPayments] An error occurred while handling existing payments: {ex.Message}, stackTrace: {ex.StackTrace}");
+            }
             catch (Exception ex)
             {
                 LogError($"Method:[HandleNewPayment] An error occurred while handling new payment: {ex.Message}, stackTrace: {ex.StackTrace}");
