@@ -1,7 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using NUnit.Framework;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Moq; //Moq is a popular mocking library for .NET which allows you to easily create mock objects for interfaces or classes.
+//using NUnit.Framework; ----- Sorry I commented this and did not Nunit test because I cannot run it in my local machine
 using RefactorThis.Persistence;
+using RefactorThis.Persistence.Enums;
+using RefactorThis.Persistence.Interface;
+using Xunit; // I used unit test so I can run my test cases
 
 namespace RefactorThis.Domain.Tests
 {
