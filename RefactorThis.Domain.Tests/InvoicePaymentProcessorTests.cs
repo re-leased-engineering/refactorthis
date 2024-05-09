@@ -311,4 +311,152 @@ namespace RefactorThis.Domain.Tests
             // Assert
             Assert.Equal("Invoice is now partially paid", response);
         }
+
+        //More test cases for Invoice Service in get invoice, saving invoice and calculate taxes
+
+        [Fact]
+        public async Task GetInvoice_Should_RetrieveInvoice_When_ReferenceIsSubmitted()
+        {
+            // Arrange
+            string reference = "PAY001";
+
+            var expectedInvoice = new Invoice
+            {
+                Amount = 10,
+                AmountPaid = 0,
+                Payments = new List<Payment>()
+            };
+
+            // Mocking the dependencies
+            var mockRepository = new Mock<IInvoiceRepository>();
+            mockRepository.Setup(repo => repo.GetInvoice(reference, It.IsAny<CancellationToken>()))
+                          .ReturnsAsync(expectedInvoice);
+
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
+
+            var invoiceService = new InvoiceService(mockRepository.Object, mockLogger.Object);
+
+            // Act
+            var resultInvoice = await invoiceService.GetInvoice(reference, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(resultInvoice);
+        }
+
+        [Fact]
+        public async Task SaveInvoice_Should_SaveInvoice_When_InvoiceIsAdded()
+        {
+            // Arrange
+            var mockRepository = new Mock<IInvoiceRepository>();
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
+
+            var invoiceService = new InvoiceService(mockRepository.Object, mockLogger.Object);
+
+            var invoice = new Invoice
+            {
+                Amount = 10,
+                AmountPaid = 5,
+                Payments = new List<Payment>
+                {
+                    new Payment { Amount = 5 }
+                }
+            };
+
+            // Act
+            await invoiceService.SaveInvoice(invoice, CancellationToken.None);
+
+            // Assert
+            // Verify that the SaveInvoice method of the mock repository was called exactly once with the correct parameters.
+            mockRepository.Verify(repo => repo.SaveInvoice(invoice, It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task SaveInvoice_Should_ThrowException_When_SomethingWentWrongOnDbSave()
+        {
+            // Arrange
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
+
+            mockInvoiceRepository.Setup(repo => repo.SaveInvoice(It.IsAny<Invoice>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Simulated database error"));
+
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
+
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
+
+            var invoice = new Invoice
+            {
+                Amount = 10,
+                AmountPaid = 5,
+                Payments = new List<Payment>
+                {
+                    new Payment { Amount = 5 }
+                }
+            };
+
+            // Act
+            async Task Act() => await invoiceService.SaveInvoice(invoice, CancellationToken.None);
+
+            // Assert
+            await Assert.ThrowsAsync<Exception>(Act);
+        }
+
+        [Fact]
+        public void CalculateTax_Should_CalculateTax_When_InvoiceIsCommercial()
+        {
+            // Arrange
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
+
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
+
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
+
+            var invoice = new Invoice
+            {
+                Type = InvoiceType.Commercial,
+                TaxAmount = 0,
+            };
+            var payment = new Payment
+            {
+                Amount = 100,
+            };
+
+            // Act
+            invoiceService.CalculateTax(invoice, payment);
+
+            // Assert
+            // Assert that tax amount has been correctly calculated
+            Assert.Equal(14, invoice.TaxAmount);
+        }
+
+        [Theory]
+        [InlineData(InvoiceType.Commercial, 100, 14)]
+        [InlineData(InvoiceType.Standard, 100, 0)]
+        public void CalculateTax_Should_CalculateTax_From_InlineData(
+            InvoiceType invoiceType, decimal paymentAmount, decimal expectedTaxAmount)
+        {
+            // Arrange
+            var mockInvoiceRepository = new Mock<IInvoiceRepository>();
+
+            var mockLogger = new Mock<ILogger<InvoiceService>>();
+
+            var invoiceService = new InvoiceService(mockInvoiceRepository.Object, mockLogger.Object);
+
+            var invoice = new Invoice
+            {
+                Type = invoiceType,
+                TaxAmount = 0, 
+            };
+            var payment = new Payment
+            {
+                Amount = paymentAmount,
+            };
+
+            // Act
+            invoiceService.CalculateTax(invoice, payment);
+
+            // Assert
+            // Assert that tax amount has been correctly calculated
+            Assert.Equal(expectedTaxAmount, invoice.TaxAmount);
+        }
+    }
 }
