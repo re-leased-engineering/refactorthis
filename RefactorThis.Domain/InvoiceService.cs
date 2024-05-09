@@ -4,9 +4,9 @@ using RefactorThis.Persistence;
 
 namespace RefactorThis.Domain
 {
-	public class InvoiceService
-	{
-		private readonly InvoiceRepository _invoiceRepository;
+    //Register this in Dependency Injection Service
+    public class InvoiceService : IInvoiceService
+    {
 
 		public InvoiceService( InvoiceRepository invoiceRepository )
 		{
