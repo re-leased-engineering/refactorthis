@@ -102,11 +102,6 @@ namespace RefactorThis.Domain
 							switch ( inv.Type )
 							{
 								case InvoiceType.Standard:
-									inv.AmountPaid = payment.Amount;
-									inv.TaxAmount = payment.Amount * 0.14m;
-									inv.Payments.Add( payment );
-									responseMessage = "invoice is now fully paid";
-									break;
 								case InvoiceType.Commercial:
 									inv.AmountPaid = payment.Amount;
 									inv.TaxAmount = payment.Amount * 0.14m;
@@ -122,11 +117,6 @@ namespace RefactorThis.Domain
 							switch ( inv.Type )
 							{
 								case InvoiceType.Standard:
-									inv.AmountPaid = payment.Amount;
-									inv.TaxAmount = payment.Amount * 0.14m;
-									inv.Payments.Add( payment );
-									responseMessage = "invoice is now partially paid";
-									break;
 								case InvoiceType.Commercial:
 									inv.AmountPaid = payment.Amount;
 									inv.TaxAmount = payment.Amount * 0.14m;
