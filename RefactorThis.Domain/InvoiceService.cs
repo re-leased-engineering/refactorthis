@@ -16,28 +16,15 @@ namespace RefactorThis.Domain
 		public string ProcessPayment(Payment payment)
 		{
 			var inv = _invoiceRepository.GetInvoice(payment.Reference);
-
 			var responseMessage = string.Empty;
 
 			if (inv == null)
 			{
 				throw new InvalidOperationException("There is no invoice matching this payment");
 			}
-			else
-			{
-				if (inv.Amount == 0)
-				{
-					if (inv.Payments == null || !inv.Payments.Any())
-					{
-						responseMessage = "no payment needed";
-					}
-					else
-					{
-						throw new InvalidOperationException("The invoice is in an invalid state, it has an amount of 0 and it has payments.");
-					}
-				}
-				else
-				{
+
+			ValidateInvoice(inv);
+		
 					if (inv.Payments != null && inv.Payments.Any())
 					{
 						if (inv.Payments.Sum(x => x.Amount) != 0 && inv.Amount == inv.Payments.Sum(x => x.Amount))
@@ -128,12 +115,26 @@ namespace RefactorThis.Domain
 							}
 						}
 					}
-				}
-			}
-
+				
+			
 			inv.Save();
 
 			return responseMessage;
+		}
+
+		private void ValidateInvoice(Invoice inv)
+		{
+			if (inv.Amount == 0)
+			{
+				if (inv.Payments == null || !inv.Payments.Any())
+				{
+					throw new InvalidOperationException("No payment needed.");
+				}
+				else
+				{
+					throw new InvalidOperationException("The invoice is in an invalid state, it has an amount of 0 and it has payments.");
+				}
+			}
 		}
 	}
 }
