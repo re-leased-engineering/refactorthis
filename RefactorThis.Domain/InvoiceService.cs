@@ -58,11 +58,11 @@ namespace RefactorThis.Domain
 		{
 			if (inv.Payments.Sum(x => x.Amount) != 0 && inv.Amount == inv.Payments.Sum(x => x.Amount))
 			{
-				responseMessage = "invoice was already fully paid";
+				responseMessage = "Invoice was already fully paid";
 			}
 			else if (inv.Payments.Sum(x => x.Amount) != 0 && payment.Amount > (inv.Amount - inv.AmountPaid))
 			{
-				responseMessage = "the payment is greater than the partial amount remaining";
+				responseMessage = "The payment is greater than the partial amount remaining";
 			}
 			else
 			{
@@ -82,7 +82,7 @@ namespace RefactorThis.Domain
 		{
 			if (payment.Amount > inv.Amount)
 			{
-				responseMessage = "the payment is greater than the invoice amount";
+				responseMessage = "The payment is greater than the invoice amount";
 			}
 			else
 			{

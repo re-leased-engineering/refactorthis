@@ -32,7 +32,7 @@ namespace RefactorThis.Domain.Tests
 		}
 
 		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_NoPaymentNeeded( )
+		public void ProcessPayment_Should_ThrowException_When_NoPaymentNeeded( )
 		{
 			var repo = new InvoiceRepository( );
 
@@ -49,9 +49,18 @@ namespace RefactorThis.Domain.Tests
 
 			var payment = new Payment( );
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            var failureMessage = "";
 
-			Assert.AreEqual( "no payment needed", result );
+            try
+            {
+                var result = paymentProcessor.ProcessPayment(payment);
+            }
+            catch (InvalidOperationException e)
+            {
+                failureMessage = e.Message;
+            }
+
+            Assert.AreEqual("No payment needed.", failureMessage);
 		}
 
 		[Test]
@@ -79,7 +88,7 @@ namespace RefactorThis.Domain.Tests
 
 			var result = paymentProcessor.ProcessPayment( payment );
 
-			Assert.AreEqual( "invoice was already fully paid", result );
+			Assert.AreEqual( "Invoice was already fully paid", result );
 		}
 
 		[Test]
@@ -109,7 +118,7 @@ namespace RefactorThis.Domain.Tests
 
 			var result = paymentProcessor.ProcessPayment( payment );
 
-			Assert.AreEqual( "the payment is greater than the partial amount remaining", result );
+			Assert.AreEqual( "The payment is greater than the partial amount remaining", result );
 		}
 
 		[Test]
@@ -133,7 +142,7 @@ namespace RefactorThis.Domain.Tests
 
 			var result = paymentProcessor.ProcessPayment( payment );
 
-			Assert.AreEqual( "the payment is greater than the invoice amount", result );
+			Assert.AreEqual( "The payment is greater than the invoice amount", result );
 		}
 
 		[Test]
@@ -163,7 +172,7 @@ namespace RefactorThis.Domain.Tests
 
 			var result = paymentProcessor.ProcessPayment( payment );
 
-			Assert.AreEqual( "final partial payment received, invoice is now fully paid", result );
+			Assert.AreEqual( "Final partial payment received, invoice is now fully paid", result );
 		}
 
 		[Test]
@@ -187,7 +196,7 @@ namespace RefactorThis.Domain.Tests
 
 			var result = paymentProcessor.ProcessPayment( payment );
 
-			Assert.AreEqual( "invoice was already fully paid", result );
+			Assert.AreEqual( "Invoice was already fully paid", result );
 		}
 
 		[Test]
@@ -217,7 +226,7 @@ namespace RefactorThis.Domain.Tests
 
 			var result = paymentProcessor.ProcessPayment( payment );
 
-			Assert.AreEqual( "another partial payment received, still not fully paid", result );
+			Assert.AreEqual( "Another partial payment received, still not fully paid", result );
 		}
 
 		[Test]
@@ -241,7 +250,7 @@ namespace RefactorThis.Domain.Tests
 
 			var result = paymentProcessor.ProcessPayment( payment );
 
-			Assert.AreEqual( "invoice is now partially paid", result );
+			Assert.AreEqual( "Invoice is now partially paid", result );
 		}
 	}
 }
