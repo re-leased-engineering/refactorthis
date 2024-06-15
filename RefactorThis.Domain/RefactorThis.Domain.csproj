@@ -9,8 +9,6 @@
     <Copyright>Copyright ©  2021</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RefactorThis.Persistence\RefactorThis.Persistence.csproj" />
-  </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactorThis.Domain.Tests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactorThis.Persistence", "RefactorThis.Persistence\RefactorThis.Persistence.csproj", "{50F3F93C-6688-4B4B-8B30-3BDF6FA4485F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefactorThis.Service", "RefactorThis.Service\RefactorThis.Service\RefactorThis.Service.csproj", "{A4D28752-B4EB-4C24-A8C9-6EB4D845E0A8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefactorThis.Services", "RefactorThis.Services\RefactorThis.Services.csproj", "{E9AFCE14-C7E9-4340-B507-CE8C5E3B6390}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +28,10 @@ Global
 		{50F3F93C-6688-4B4B-8B30-3BDF6FA4485F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50F3F93C-6688-4B4B-8B30-3BDF6FA4485F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50F3F93C-6688-4B4B-8B30-3BDF6FA4485F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A4D28752-B4EB-4C24-A8C9-6EB4D845E0A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A4D28752-B4EB-4C24-A8C9-6EB4D845E0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A4D28752-B4EB-4C24-A8C9-6EB4D845E0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A4D28752-B4EB-4C24-A8C9-6EB4D845E0A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9AFCE14-C7E9-4340-B507-CE8C5E3B6390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9AFCE14-C7E9-4340-B507-CE8C5E3B6390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9AFCE14-C7E9-4340-B507-CE8C5E3B6390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9AFCE14-C7E9-4340-B507-CE8C5E3B6390}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

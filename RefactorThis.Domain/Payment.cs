@@ -1,6 +1,4 @@
-using System;
-
-namespace RefactorThis.Persistence
+namespace RefactorThis.Domain
 {
 	public class Payment
 	{
