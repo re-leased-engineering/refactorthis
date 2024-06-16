@@ -23,7 +23,7 @@ namespace RefactorThis.Domain
 		
         public (bool, string) ProcessPayment(string reference)
         {
-	        if (GetTotalAmount() == 0 && !Payments.Any(x => x.Status == PaymentStatus.Paid))
+	        if (GetTotalAmount() == 0)
 	        {
 		        return (false, "no payment needed");
 	        }
@@ -37,22 +37,22 @@ namespace RefactorThis.Domain
 
 	        if (payment == null)
 	        {
-		        return (false, "The invoice is in an invalid state, it has an amount of 0 and it has payments.");
+		        throw new Exception("Payment not found.");
+	        }
+	        
+	        //greater than the total amount
+	        if (payment.AmountPaid > GetTotalAmount())
+	        {
+		        return (false, "the payment is greater than the invoice amount");
+	        }
+	        //greater than the remaining balance
+	        if (payment.AmountPaid > GetUnpaidBalance())
+	        {
+		        return (false, "the payment is greater than the partial amount remaining") ;
 	        }
 	        
 	        if (Payments.Any(x => x.Status == PaymentStatus.Paid) && GetTotalAmountPaid() > 0)
 	        {
-		        //greater than the total amount
-		        if (payment.AmountPaid > GetTotalAmount())
-		        {
-			        return (false, "the payment is greater than the invoice amount");
-		        }
-		        //greater than the remaining balance
-		        if (payment.AmountPaid > GetUnpaidBalance())
-		        {
-			        return (false, "the payment is greater than the partial amount remaining") ;
-		        }
-		        
 		        if (payment.AmountPaid == GetUnpaidBalance())
 		        {
 			        return (true, "invoice is now fully paid");
@@ -60,16 +60,6 @@ namespace RefactorThis.Domain
 	        }
 	        else
 	        {
-		        if (payment.AmountPaid > GetTotalAmount())
-		        {
-			        return (false, "the payment is greater than the invoice amount");
-		        }
-		        
-		        if (payment.AmountPaid > GetUnpaidBalance())
-		        {
-			        return (false, "the payment is greater than the partial amount remaining2");
-		        }
-
 		        if (payment.AmountPaid == GetUnpaidBalance())
 		        {
 			        return (true, "final partial payment received, invoice is now fully paid");
@@ -79,14 +69,8 @@ namespace RefactorThis.Domain
 		        {
 			        return (true, "invoice is now partially paid");
 		        } 
-	       
-		        if (payment.AmountPaid == GetTotalAmount())
-		        {
-			        return (true, "invoice is now fully paid");
-		        }
-
-		       
 	        }
+	        
 			return (false, "The invoice is in an invalid state, it has an amount of 0 and it has payments.");
         }
         
