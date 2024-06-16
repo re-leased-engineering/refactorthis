@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RefactorThis.Domain\RefactorThis.Domain.csproj" />
     <ProjectReference Include="..\RefactorThis.Persistence\RefactorThis.Persistence.csproj" />
+    <ProjectReference Include="..\RefactorThis.Services\RefactorThis.Services.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
