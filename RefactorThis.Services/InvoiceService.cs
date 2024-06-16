@@ -11,19 +11,33 @@ namespace RefactorThis.Services
 		/// <param name="taxAmount"></param>
 		/// <param name="type"></param>
 		/// <returns></returns>
-		public Guid CreateInvoice(decimal amount, decimal taxAmount, InvoiceType type)
+		public InvoiceDto CreateInvoice(decimal amount, InvoiceType type)
 		{
 			var invoice = new Invoice
 			{
 				Amount = amount,
-				TaxAmount = taxAmount,
 				Type = type
 			};
 
 			invoiceRepository.Add(invoice);
 			invoiceRepository.SaveInvoice(invoice);
 
-			return invoice.Id;
+			return new InvoiceDto
+			{
+				Amount = invoice.Amount,
+				TaxAmount = invoice.Amount * invoice.GetTaxPercentage(),
+				TotalAmount = invoice.GetTotalAmount(),
+				TaxPercentage = invoice.GetTaxPercentage(),
+				Id = invoice.Id,
+				Type = invoice.Type,
+				Payments = invoice.Payments.Select(x => new PaymentDto()
+				{
+					AmountPaid = x.AmountPaid,
+					Reference = x.Reference,
+					Remarks = x.Remarks,
+					Status = x.Status
+				})
+			};
 		}
 
 		public string InitialisePayment(Guid invoiceId, decimal amountPaid)
@@ -45,7 +59,7 @@ namespace RefactorThis.Services
 			return reference;
 		}
 
-		public string ProcessPayment(string reference)
+		public ProcessPaymentResponseDto ProcessPayment(string reference)
 		{
 			var invoice = invoiceRepository.GetInvoice(reference);
 			
@@ -56,20 +70,17 @@ namespace RefactorThis.Services
 
 			var payment = invoice.Payments.SingleOrDefault(x => x.Reference == reference);
 			
-			var responseMessage = string.Empty;
 
 			var (success, message) = invoice.ProcessPayment(reference);
-
+			var responseMessage = new ProcessPaymentResponseDto(success, message);
 			if (success)
 			{
 				payment?.MarkAsPaid();
-				responseMessage = message;
 			}
 			else
 			{
 				payment!.MarkAsDeclined();
-				payment.Remarks = message;
-				responseMessage = message;
+				payment.Remarks = responseMessage.Message;
 			}
 
 			invoiceRepository.Update(invoice);
@@ -78,4 +89,6 @@ namespace RefactorThis.Services
 			return responseMessage;
 		}
 	}
+
+	public record ProcessPaymentResponseDto(bool Success, string Message);
 }
