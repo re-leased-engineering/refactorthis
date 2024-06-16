@@ -10,6 +10,7 @@ namespace RefactorThis.Persistence;
 public class InvoiceRepository : IInvoiceRepository
 {
 	private readonly ICollection<Invoice> _invoices = new HashSet<Invoice>();
+	private readonly ICollection<Invoice> _temporaryInvoices = new List<Invoice>();
 	private string action = "add";
 
 	public Invoice? GetInvoice(string reference)
@@ -24,36 +25,53 @@ public class InvoiceRepository : IInvoiceRepository
 		return _invoices.SingleOrDefault(x => x.Id == invoiceId);
 	}
 
-	public void SaveInvoice(Invoice invoice)
+	public void SaveChanges()
 	{
 		switch (action)
 		{
 			case "add":
-				if (invoice.Id == Guid.Empty)
+				foreach (var invoice in _temporaryInvoices)
 				{
-					invoice.Id = Guid.NewGuid();
+					if (invoice.Id == Guid.Empty)
+					{
+						invoice.Id = Guid.NewGuid();
+					}
+
+					_invoices.Add(invoice);
+					Console.WriteLine("Should save in database..." + JsonSerializer.Serialize(invoice));
 				}
 				return;
 			case "edit":
-				if (invoice.Id == Guid.Empty)
+				foreach (var invoice in _temporaryInvoices)
 				{
-					throw new InvalidOperationException("Cannot be updated.");
+					var savedInvoice = _invoices.SingleOrDefault(x => x.Id == invoice.Id);
+
+					if (savedInvoice == null)
+					{
+						throw new InvalidOperationException("No matching tracked entity");
+					}
+
+					_invoices.Remove(savedInvoice);
+					_invoices.Add(invoice);
+					Console.WriteLine("Should save in database..." + JsonSerializer.Serialize(invoice));
 				}
 				break;
 		}
 	
-		Console.WriteLine("Should save in database..." + JsonSerializer.Serialize(invoice));
+		_temporaryInvoices.Clear();
 		action = "";
 	}
 
 	public void Add(Invoice invoice)
 	{
 		action = "add";
-		_invoices.Add(invoice);
+		_temporaryInvoices.Add(invoice);
 	}
 
 	public void Update(Invoice invoice)
 	{
 		action = "edit";
+		_temporaryInvoices.Add(invoice);
 	}
+
 }
