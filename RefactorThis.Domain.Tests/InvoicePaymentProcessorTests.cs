@@ -47,7 +47,23 @@ namespace RefactorThis.Domain.Tests
 			Assert.That(false, Is.EqualTo(result.Success));
 			Assert.That(invoiceAmount, Is.EqualTo(invoice.Amount + (invoice.Amount * invoice.TaxPercentage)));
 		}
-		
+
+		[TestCase(InvoiceType.Commercial)]
+		[TestCase(InvoiceType.Standard)]
+		public void ProcessPayment_Should_ReturnFailureMessage_When_NoPaymentNeeded(InvoiceType type)
+		{
+			IInvoiceRepository repo = new InvoiceRepository();
+			var paymentProcessor = new InvoiceService(repo);
+			var invoice = paymentProcessor.CreateInvoice(0M, type);
+			var invoiceAmount = invoice.TotalAmount;
+			var payment1Reference = paymentProcessor.InitialisePayment(invoice.Id, invoiceAmount);
+
+			var result = paymentProcessor.ProcessPayment(payment1Reference);
+
+
+			Assert.That(result.Message, Is.EqualTo("no payment needed"));
+		}
+
 		[TestCase(InvoiceType.Commercial)]
 		[TestCase(InvoiceType.Standard)]
 		public void ProcessPayment_Should_ReturnFailureMessage_When_PartialPaymentExistsAndAmountPaidExceedsAmountDue(InvoiceType type)
