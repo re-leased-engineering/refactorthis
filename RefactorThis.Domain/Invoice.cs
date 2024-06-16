@@ -15,7 +15,7 @@ namespace RefactorThis.Domain
 			return Payments.Count == 0 ? 0M : Payments.Where(x => x.Status == PaymentStatus.Paid).Sum(x => x.AmountPaid);
 		}
 
-		public decimal GetTotalBalance() => GetTotalAmount() - GetTotalAmountPaid();
+		public decimal GetUnpaidBalance() => GetTotalAmount() - GetTotalAmountPaid();
 
 		public decimal GetTotalAmount()
 		{
@@ -32,28 +32,39 @@ namespace RefactorThis.Domain
 	        }
 	        
 	        var payment = Payments.SingleOrDefault(x => x.Reference == reference && x.Status == PaymentStatus.Initialised);
-
-			if (GetTotalBalance() == 0)
+	        
+			if (GetUnpaidBalance() == 0)
 			{
 				return (false, "invoice was already fully paid");
 			}
 
-			if (payment!.AmountPaid > GetTotalBalance())
+			if (payment!.AmountPaid == GetTotalAmount())
 			{
-				return (false, "the payment is greater than the partial amount remaining");
+				return (true, "invoice is now fully paid");
 			}
 
-			if (payment.AmountPaid == GetTotalBalance())
+			if (payment.AmountPaid > GetTotalAmount())
 			{
-				//if final
-				return (true, "final partial payment received, invoice is now fully paid");
+				return (false, "the payment is greater than the invoice amount");
 			}
 			
-			if (payment.AmountPaid <= GetTotalBalance() && payment.AmountPaid != 0)
+			if (payment.AmountPaid > GetUnpaidBalance())
 			{
-				//partial 
-				return (true, "another partial payment received, still not fully paid");
+				return (false, "the payment is greater than the partial amount remaining") ;
 			}
+
+			if (payment.AmountPaid == GetUnpaidBalance())
+			{
+				return (true, "final partial payment received, invoice is now fully paid");
+			}
+
+			if (payment.AmountPaid < GetUnpaidBalance())
+			{
+				return (true, "invoice is now partially paid");
+			}
+			
+
+			
 			
 			return (false, "The invoice is in an invalid state, it has an amount of 0 and it has payments.");
         }
