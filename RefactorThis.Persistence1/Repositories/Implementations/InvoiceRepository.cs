@@ -1,16 +1,15 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using RefactorThis.Domain1.Models.Entities;
-using RefactorThis.Domain1.Repositories.Contracts;
-using RefactorThis.Domain1.Services.Implementations;
-using System;
+using RefactorThis.Domain.Models.Entities;
+using RefactorThis.Domain.Repositories.Contracts;
+using System;   
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RefactorThis.Persistence1.Repositories.Implementations
+namespace RefactorThis.Persistence.Repositories.Implementations
 {
     public class InvoiceRepository : IInvoiceRepository
     {
@@ -57,11 +56,11 @@ namespace RefactorThis.Persistence1.Repositories.Implementations
                 _logger.LogError($"InvoiceRepository | GetInvoiceAsync - [Exception] - {ex.Message}");
                 throw;
             }
-         
+
         }
         public async Task SaveInvoiceAsync(Invoice invoice)
         {
-           await Task.CompletedTask;
+            await Task.CompletedTask;
         }
     }
 }

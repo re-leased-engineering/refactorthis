@@ -1,11 +1,11 @@
-﻿using RefactorThis.Domain1.Models.Entities;
+﻿using RefactorThis.Domain.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RefactorThis.Domain1.Services.Contracts
+namespace RefactorThis.Domain.Services.Contracts
 {
     public interface IInvoiceService
     {

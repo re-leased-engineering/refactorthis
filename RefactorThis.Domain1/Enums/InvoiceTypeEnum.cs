@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RefactorThis.Domain1.Enums
+namespace RefactorThis.Domain.Enums
 {
     public enum InvoiceType
     {

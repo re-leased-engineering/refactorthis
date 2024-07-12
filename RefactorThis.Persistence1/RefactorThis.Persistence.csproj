@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RefactorThis.Domain1\RefactorThis.Domain1.csproj" />
+    <ProjectReference Include="..\RefactorThis.Domain1\RefactorThis.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,13 +2,13 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using RefactorThis.Domain1.Models.Entities;
-using RefactorThis.Domain1.Repositories.Contracts;
-using RefactorThis.Domain1.Services.Contracts;
-using RefactorThis.Domain1.Services.Implementations;
-using RefactorThis.Persistence1.Repositories.Implementations;
+using RefactorThis.Domain.Models.Entities;
+using RefactorThis.Domain.Repositories.Contracts;
+using RefactorThis.Domain.Services.Contracts;
+using RefactorThis.Domain.Services.Implementations;
+using RefactorThis.Persistence.Repositories.Implementations;
 
-namespace RefactorThis.Domain.Tests1
+namespace RefactorThis.Domain.Tests
 {
     [TestClass]
     public class InvoicePaymentProcessorTests

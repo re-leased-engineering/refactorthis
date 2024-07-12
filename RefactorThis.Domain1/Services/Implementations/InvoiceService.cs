@@ -1,18 +1,18 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using RefactorThis.Domain1.Enums;
-using RefactorThis.Domain1.Models.Entities;
-using RefactorThis.Domain1.Repositories.Contracts;
-using RefactorThis.Domain1.Services.Contracts;
-using RefactorThis.Domain1.Validators;
+using RefactorThis.Domain.Enums;
+using RefactorThis.Domain.Models.Entities;
+using RefactorThis.Domain.Repositories.Contracts;
+using RefactorThis.Domain.Services.Contracts;
+using RefactorThis.Domain.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RefactorThis.Domain1.Services.Implementations
+namespace RefactorThis.Domain.Services.Implementations
 {
     public class InvoiceService : IInvoiceService
     {
@@ -40,17 +40,17 @@ namespace RefactorThis.Domain1.Services.Implementations
             }
 
             //check the payment validity
-            var validationMessage = PaymentValidators.CheckPaymentValidity(inv,payment);
+            var validationMessage = PaymentValidators.CheckPaymentValidity(inv, payment);
 
             if (!string.IsNullOrEmpty(validationMessage))
             {
                 return validationMessage;
             }
-           
-            responseMessage = ProcessInvoicePayment(inv,payment);
+
+            responseMessage = ProcessInvoicePayment(inv, payment);
 
             await _invoiceRepository.SaveInvoiceAsync(inv);
-           
+
             return responseMessage;
         }
         private string ProcessInvoicePayment(Invoice inv, Payment payment)

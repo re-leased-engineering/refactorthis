@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RefactorThis.Domain1\RefactorThis.Domain1.csproj" />
-    <ProjectReference Include="..\RefactorThis.Persistence1\RefactorThis.Persistence1.csproj" />
+    <ProjectReference Include="..\RefactorThis.Domain1\RefactorThis.Domain.csproj" />
+    <ProjectReference Include="..\RefactorThis.Persistence1\RefactorThis.Persistence.csproj" />
   </ItemGroup>
 
   <ItemGroup>

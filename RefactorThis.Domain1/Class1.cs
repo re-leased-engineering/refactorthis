@@ -1,4 +1,4 @@
-﻿namespace RefactorThis.Domain1
+﻿namespace RefactorThis.Domain
 {
     public class Class1
     {

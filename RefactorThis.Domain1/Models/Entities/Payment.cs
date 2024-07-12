@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RefactorThis.Domain1.Models.Entities
+namespace RefactorThis.Domain.Models.Entities
 {
     public class Payment
     {

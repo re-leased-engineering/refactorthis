@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactorThis.Domain1", "RefactorThis.Domain1\RefactorThis.Domain1.csproj", "{F638288B-59F8-484B-A0E5-0A1A62CBC8FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactorThis.Domain", "RefactorThis.Domain1\RefactorThis.Domain.csproj", "{F638288B-59F8-484B-A0E5-0A1A62CBC8FA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactorThis.Persistence1", "RefactorThis.Persistence1\RefactorThis.Persistence1.csproj", "{8F8400FC-4D79-42E2-935D-855D920B17A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactorThis.Persistence", "RefactorThis.Persistence1\RefactorThis.Persistence.csproj", "{8F8400FC-4D79-42E2-935D-855D920B17A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactorThis.Domain.Tests1", "RefactorThis.Domain.Tests1\RefactorThis.Domain.Tests1.csproj", "{78D08A6D-6754-45CF-84C2-AB4500703ABE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactorThis.Domain.Tests", "RefactorThis.Domain.Tests1\RefactorThis.Domain.Tests.csproj", "{78D08A6D-6754-45CF-84C2-AB4500703ABE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
