@@ -24,10 +24,6 @@ namespace RefactorThis.Domain1.Services.Implementations
             _invoiceRepository = invoiceRepository;
             _logger = logger;
         }
-        public sealed class Validator : AbstractValidator<Payment>
-        {
-
-        }
         public async Task<string> ProcessPaymentAsync(Payment payment)
         {
             var inv = await _invoiceRepository.GetInvoiceAsync(payment.Reference);
@@ -38,7 +34,7 @@ namespace RefactorThis.Domain1.Services.Implementations
 
             if (inv is null)
             {
-                _logger.LogError($"InvoiceService | ProcessPaymentAsync -  {JsonConvert.SerializeObject(inv)}");
+                _logger.LogError($"InvoiceService | ProcessPaymentAsync -  {JsonConvert.SerializeObject(payment)}");
 
                 throw new InvalidOperationException("There is no invoice matching this payment");
             }
