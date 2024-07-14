@@ -1,247 +1,262 @@
 ﻿using System;
 using System.Collections.Generic;
-using NUnit.Framework;
-using RefactorThis.Persistence;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
+using NSubstitute;
+using RefactorThis.Domain.Abstractions;
+using RefactorThis.Domain.Application.ProcessPayment;
+using RefactorThis.Domain.Invoices;
+using RefactorThis.Domain.Payments;
+using Xunit;
 
 namespace RefactorThis.Domain.Tests
 {
-	[TestFixture]
-	public class InvoicePaymentProcessorTests
-	{
-		[Test]
-		public void ProcessPayment_Should_ThrowException_When_NoInoiceFoundForPaymentReference( )
-		{
-			var repo = new InvoiceRepository( );
+    public class InvoicePaymentProcessorTests
+    {      
+        private readonly ProcessPaymentCommandHandler _handler;
+        private readonly IInvoiceRepository _invoiceRepositoryMock;
+        private readonly IUnitOfWork _unitOfWorkMock;
 
-			Invoice invoice = null;
-			var paymentProcessor = new InvoiceService( repo );
+        public InvoicePaymentProcessorTests()
+        {
+            _invoiceRepositoryMock = Substitute.For<IInvoiceRepository>();
+            _unitOfWorkMock = Substitute.For<IUnitOfWork>();
 
-			var payment = new Payment( );
-			var failureMessage = "";
+            _handler = new ProcessPaymentCommandHandler(
+                _invoiceRepositoryMock,
+                _unitOfWorkMock);
+        }
 
-			try
-			{
-				var result = paymentProcessor.ProcessPayment( payment );
-			}
-			catch ( InvalidOperationException e )
-			{
-				failureMessage = e.Message;
-			}
+        [Fact]
+        public async Task ProcessPayment_Should_ThrowException_When_NoInoiceFoundForPaymentReference()
+        {
+            // Arrange
+            var paymentCommand = new ProcessPaymentCommand(0, string.Empty);
 
-			Assert.AreEqual( "There is no invoice matching this payment", failureMessage );
-		}
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns((Invoice)null);
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_NoPaymentNeeded( )
-		{
-			var repo = new InvoiceRepository( );
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
 
-			var invoice = new Invoice( repo )
-			{
-				Amount = 0,
-				AmountPaid = 0,
-				Payments = null
-			};
+            // Assert
+            result.Error.Should().Be(InvoiceErrors.NotFound);
+        }
 
-			repo.Add( invoice );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFailureMessage_When_NoPaymentNeeded()
+        {
+            // Arrange
+            var invoice = Invoice.Create(
+                  Guid.NewGuid(),
+                  0,
+                  0,
+                  0,
+                  null,
+                  InvoiceType.Standard
+              );
 
-			var paymentProcessor = new InvoiceService( repo );
+            var paymentCommand = new ProcessPaymentCommand(0, string.Empty);
 
-			var payment = new Payment( );
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns(invoice);
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
 
-			Assert.AreEqual( "no payment needed", result );
-		}
+            // Assert
+            result.Error.Should().Be(InvoiceErrors.NoPaymentNeeded);          
+        }
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_InvoiceAlreadyFullyPaid( )
-		{
-			var repo = new InvoiceRepository( );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFailureMessage_When_InvoiceAlreadyFullyPaid()
+        {
+            // Arrange        
+            var invoice = Invoice.Create(
+                  Guid.NewGuid(),
+                  10,
+                  10,
+                  0,
+                  new List<Payment> { Payment.Create(string.Empty, 10) },
+                  InvoiceType.Standard
+              );
 
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 10,
-				Payments = new List<Payment>
-				{
-					new Payment
-					{
-						Amount = 10
-					}
-				}
-			};
-			repo.Add( invoice );
+            var paymentCommand = new ProcessPaymentCommand(0, string.Empty);
 
-			var paymentProcessor = new InvoiceService( repo );
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns(invoice);
 
-			var payment = new Payment( );
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            // Assert
+            result.Error.Should().Be(InvoiceErrors.AlreadyFullyPaid);                 
+        }
 
-			Assert.AreEqual( "invoice was already fully paid", result );
-		}
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFailureMessage_When_PartialPaymentExistsAndAmountPaidExceedsAmountDue()
+        {
+            // Arrange
+            var invoice = Invoice.Create(
+                  Guid.NewGuid(),
+                  10,
+                  5,
+                  0,
+                  new List<Payment> { Payment.Create(string.Empty, 5) },
+                  InvoiceType.Standard
+              );
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_PartialPaymentExistsAndAmountPaidExceedsAmountDue( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 5,
-				Payments = new List<Payment>
-				{
-					new Payment
-					{
-						Amount = 5
-					}
-				}
-			};
-			repo.Add( invoice );
+              var paymentCommand = new ProcessPaymentCommand(6, string.Empty);
 
-			var paymentProcessor = new InvoiceService( repo );
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns(invoice);
 
-			var payment = new Payment( )
-			{
-				Amount = 6
-			};
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            // Assert
+            result.Error.Should().Be(InvoiceErrors.PaymentExceedsRemainingAmount);           
+        }
 
-			Assert.AreEqual( "the payment is greater than the partial amount remaining", result );
-		}
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFailureMessage_When_NoPartialPaymentExistsAndAmountPaidExceedsInvoiceAmount()
+        {
+            // Arrange
+            var invoice = Invoice.Create(
+                  Guid.NewGuid(),
+                  5,
+                  0,
+                  0,
+                  new List<Payment>(),
+                  InvoiceType.Standard
+              );
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFailureMessage_When_NoPartialPaymentExistsAndAmountPaidExceedsInvoiceAmount( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 5,
-				AmountPaid = 0,
-				Payments = new List<Payment>( )
-			};
-			repo.Add( invoice );
+            var paymentCommand = new ProcessPaymentCommand(6, string.Empty);
 
-			var paymentProcessor = new InvoiceService( repo );
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns(invoice);
 
-			var payment = new Payment( )
-			{
-				Amount = 6
-			};
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
 
-			var result = paymentProcessor.ProcessPayment( payment );
+            // Assert
+            result.Error.Should().Be(InvoiceErrors.PaymentExceedsInvoiceAmount);
+          
+        }
 
-			Assert.AreEqual( "the payment is greater than the invoice amount", result );
-		}
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFullyPaidMessage_When_PartialPaymentExistsAndAmountPaidEqualsAmountDue()
+        {
+            // Arrange
+            var invoice = Invoice.Create(
+                  Guid.NewGuid(),
+                  10,
+                  5,
+                  0,
+                  new List<Payment> { Payment.Create(string.Empty, 5) },
+                  InvoiceType.Standard
+              );
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFullyPaidMessage_When_PartialPaymentExistsAndAmountPaidEqualsAmountDue( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 5,
-				Payments = new List<Payment>
-				{
-					new Payment
-					{
-						Amount = 5
-					}
-				}
-			};
-			repo.Add( invoice );
+            var paymentCommand = new ProcessPaymentCommand(5, string.Empty);
 
-			var paymentProcessor = new InvoiceService( repo );
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns(invoice);
 
-			var payment = new Payment( )
-			{
-				Amount = 5
-			};
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
+          
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().Be(ResponseMessages.FinalPartialPaymentReceived);           
+        }
 
-			var result = paymentProcessor.ProcessPayment( payment );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnFullyPaidMessage_When_NoPartialPaymentExistsAndAmountPaidEqualsInvoiceAmount()
+        {
+            // Arrange
+            var invoice = Invoice.Create(
+                  Guid.NewGuid(),
+                  10,
+                  0,
+                  0,
+                  new List<Payment> { Payment.Create(string.Empty, 10) },
+                  InvoiceType.Standard
+              );
 
-			Assert.AreEqual( "final partial payment received, invoice is now fully paid", result );
-		}
+            var paymentCommand = new ProcessPaymentCommand(10, string.Empty);
 
-		[Test]
-		public void ProcessPayment_Should_ReturnFullyPaidMessage_When_NoPartialPaymentExistsAndAmountPaidEqualsInvoiceAmount( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 0,
-				Payments = new List<Payment>( ) { new Payment( ) { Amount = 10 } }
-			};
-			repo.Add( invoice );
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns(invoice);
 
-			var paymentProcessor = new InvoiceService( repo );
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
 
-			var payment = new Payment( )
-			{
-				Amount = 10
-			};
+            // Assert
+            result.Error.Should().Be(InvoiceErrors.AlreadyFullyPaid);          
+        }
 
-			var result = paymentProcessor.ProcessPayment( payment );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnPartiallyPaidMessage_When_PartialPaymentExistsAndAmountPaidIsLessThanAmountDue()
+        {
+            // Arrange
+            var invoice = Invoice.Create(
+                  Guid.NewGuid(),
+                  10,
+                  5,
+                  0,
+                  new List<Payment> { Payment.Create(string.Empty, 5) },
+                  InvoiceType.Standard
+              );
 
-			Assert.AreEqual( "invoice was already fully paid", result );
-		}
+            var paymentCommand = new ProcessPaymentCommand(1, string.Empty);
 
-		[Test]
-		public void ProcessPayment_Should_ReturnPartiallyPaidMessage_When_PartialPaymentExistsAndAmountPaidIsLessThanAmountDue( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 5,
-				Payments = new List<Payment>
-				{
-					new Payment
-					{
-						Amount = 5
-					}
-				}
-			};
-			repo.Add( invoice );
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns(invoice);
 
-			var paymentProcessor = new InvoiceService( repo );
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
 
-			var payment = new Payment( )
-			{
-				Amount = 1
-			};
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().Be(ResponseMessages.AnotherPartialPaymentReceived);
+        }
 
-			var result = paymentProcessor.ProcessPayment( payment );
+        [Fact]
+        public async Task ProcessPayment_Should_ReturnPartiallyPaidMessage_When_NoPartialPaymentExistsAndAmountPaidIsLessThanInvoiceAmount()
+        {
+            // Arrange
+            var invoice = Invoice.Create(
+                  Guid.NewGuid(),
+                  10,
+                  0,
+                  0,
+                  new List<Payment>(),
+                  InvoiceType.Standard
+              );
 
-			Assert.AreEqual( "another partial payment received, still not fully paid", result );
-		}
+            var paymentCommand = new ProcessPaymentCommand(1, string.Empty);
 
-		[Test]
-		public void ProcessPayment_Should_ReturnPartiallyPaidMessage_When_NoPartialPaymentExistsAndAmountPaidIsLessThanInvoiceAmount( )
-		{
-			var repo = new InvoiceRepository( );
-			var invoice = new Invoice( repo )
-			{
-				Amount = 10,
-				AmountPaid = 0,
-				Payments = new List<Payment>( )
-			};
-			repo.Add( invoice );
+            _invoiceRepositoryMock
+                .GetInvoice(paymentCommand.Reference, Arg.Any<CancellationToken>())
+                .Returns(invoice);
 
-			var paymentProcessor = new InvoiceService( repo );
+            // Act
+            Result<string> result = await _handler.Handle(paymentCommand, default);
 
-			var payment = new Payment( )
-			{
-				Amount = 1
-			};
+            // Assert
+            result.IsSuccess.Should().BeTrue();
+            result.Value.Should().Be(ResponseMessages.InvoiceNowPartiallyPaid);           
+        }
 
-			var result = paymentProcessor.ProcessPayment( payment );
 
-			Assert.AreEqual( "invoice is now partially paid", result );
-		}
-	}
+    }
 }
