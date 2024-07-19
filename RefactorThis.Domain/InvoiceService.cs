@@ -6,10 +6,10 @@ namespace RefactorThis.Domain
 {
     public class InvoiceService
     {
-        private readonly InvoiceRepository _invoiceRepository;
+        private readonly IInvoiceRepository _invoiceRepository;
         private const decimal TaxRate = 0.14m;
 
-        public InvoiceService(InvoiceRepository invoiceRepository)
+        public InvoiceService(IInvoiceRepository invoiceRepository)
         {
             // _invoiceRepository = invoiceRepository ?? throw new ArgumentNullException(nameof(invoiceRepository));
             _invoiceRepository = invoiceRepository;
