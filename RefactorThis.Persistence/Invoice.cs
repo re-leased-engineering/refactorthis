@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 
+
 namespace RefactorThis.Persistence
 {
-	public class Invoice
+    public class Invoice
 	{
 		private readonly InvoiceRepository _repository;
 		public Invoice( InvoiceRepository repository )
