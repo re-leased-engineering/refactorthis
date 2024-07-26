@@ -16,9 +16,9 @@ namespace MySolution.RefactorThis.Domain.Services.Implementations
 
         public string ProcessPayment(Payment payment)
         {
-            var invoice = _invoiceRepository.GetInvoice(payment.Reference);
+            string? responseMessage;
 
-            var responseMessage = string.Empty;
+            var invoice = _invoiceRepository.GetInvoice(payment.Reference);
 
             if (IsValidInvoice(invoice, payment, out responseMessage))
             {
