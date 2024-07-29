@@ -1,4 +1,4 @@
-namespace RefactorThis.Persistence
+namespace RefactorThis.Domain.Entities
 {
 	public class Payment
 	{
