@@ -1,4 +1,4 @@
-namespace RefactorThis.Persistence {
+namespace RefactorThis.Persistence.Model {
 	public class InvoiceRepository
 	{
 		private Invoice _invoice;
