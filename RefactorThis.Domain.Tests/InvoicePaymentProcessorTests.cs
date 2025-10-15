@@ -43,7 +43,7 @@ namespace RefactorThis.Domain.Tests
 				Payments = null
 			};
 
-			repo.Add( invoice );
+			repo.UpsertInvoice( invoice );
 
 			var paymentProcessor = new InvoiceService( repo );
 
@@ -71,7 +71,7 @@ namespace RefactorThis.Domain.Tests
 					}
 				}
 			};
-			repo.Add( invoice );
+			repo.UpsertInvoice( invoice );
 
 			var paymentProcessor = new InvoiceService( repo );
 
@@ -98,7 +98,7 @@ namespace RefactorThis.Domain.Tests
 					}
 				}
 			};
-			repo.Add( invoice );
+			repo.UpsertInvoice( invoice );
 
 			var paymentProcessor = new InvoiceService( repo );
 
@@ -122,7 +122,7 @@ namespace RefactorThis.Domain.Tests
 				AmountPaid = 0,
 				Payments = new List<Payment>( )
 			};
-			repo.Add( invoice );
+			repo.UpsertInvoice( invoice );
 
 			var paymentProcessor = new InvoiceService( repo );
 
@@ -152,7 +152,7 @@ namespace RefactorThis.Domain.Tests
 					}
 				}
 			};
-			repo.Add( invoice );
+			repo.UpsertInvoice( invoice );
 
 			var paymentProcessor = new InvoiceService( repo );
 
@@ -176,7 +176,7 @@ namespace RefactorThis.Domain.Tests
 				AmountPaid = 0,
 				Payments = new List<Payment>( ) { new Payment( ) { Amount = 10 } }
 			};
-			repo.Add( invoice );
+			repo.UpsertInvoice( invoice );
 
 			var paymentProcessor = new InvoiceService( repo );
 
@@ -206,7 +206,7 @@ namespace RefactorThis.Domain.Tests
 					}
 				}
 			};
-			repo.Add( invoice );
+			repo.UpsertInvoice( invoice );
 
 			var paymentProcessor = new InvoiceService( repo );
 
@@ -230,7 +230,7 @@ namespace RefactorThis.Domain.Tests
 				AmountPaid = 0,
 				Payments = new List<Payment>( )
 			};
-			repo.Add( invoice );
+			repo.UpsertInvoice( invoice );
 
 			var paymentProcessor = new InvoiceService( repo );
 
