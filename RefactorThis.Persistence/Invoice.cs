@@ -8,7 +8,7 @@ namespace RefactorThis.Persistence
 		public Invoice( InvoiceRepository repository )
 		{
 			_repository = repository;
-			// Ensure Payments is initialized so callers can safely call Payments.Add(...)
+			// Ensure Payments is initialized to safely add Payments
 			Payments = new List<Payment>();
 			// Default to Standard to provide a sensible default
 			Type = InvoiceType.Standard;
