@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RefactorThis.Persistence
 {
@@ -19,8 +20,18 @@ namespace RefactorThis.Persistence
 		public decimal AmountPaid { get; set; }
 		public decimal TaxAmount { get; set; }
 		public List<Payment> Payments { get; set; }
-		
+
 		public InvoiceType Type { get; set; }
+
+		public bool HasPayments
+		{
+			get { return Payments != null && Payments.Any( ); }
+		}
+
+		public decimal AmountRemaining
+		{
+			get { return Amount - AmountPaid; }
+		}
 	}
 
 	public enum InvoiceType
