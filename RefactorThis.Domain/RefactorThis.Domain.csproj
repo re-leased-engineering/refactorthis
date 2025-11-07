@@ -39,6 +39,10 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Include="InvoiceService.cs" />
+		<Compile Include="PaymentProcessing\IPaymentHandler.cs" />
+  		<Compile Include="PaymentProcessing\BasePaymentHandler.cs" />
+  		<Compile Include="PaymentProcessing\StandardPaymentHandler.cs" />
+  		<Compile Include="PaymentProcessing\CommercialPaymentHandler.cs" />
 		<Compile Include="Properties\AssemblyInfo.cs" />
 	</ItemGroup>
 	<ItemGroup>

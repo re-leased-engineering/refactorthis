@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using NUnit.Framework;
+using RefactorThis.Domain;
+using RefactorThis.Domain.PaymentProcessing;
 using RefactorThis.Persistence;
 
 namespace RefactorThis.Domain.Tests
@@ -9,12 +11,18 @@ namespace RefactorThis.Domain.Tests
 	public class InvoicePaymentProcessorTests
 	{
 		[Test]
-		public void ProcessPayment_Should_ThrowException_When_NoInoiceFoundForPaymentReference( )
+		public void ProcessPayment_Should_ThrowException_When_NoInvoiceFoundForPaymentReference( )
 		{
 			var repo = new InvoiceRepository( );
 
 			Invoice invoice = null;
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( );
 			var failureMessage = "";
@@ -45,7 +53,13 @@ namespace RefactorThis.Domain.Tests
 
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( );
 
@@ -73,7 +87,13 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( );
 
@@ -100,7 +120,13 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( )
 			{
@@ -124,7 +150,13 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( )
 			{
@@ -154,7 +186,13 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( )
 			{
@@ -178,7 +216,13 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( )
 			{
@@ -208,7 +252,13 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( )
 			{
@@ -232,7 +282,13 @@ namespace RefactorThis.Domain.Tests
 			};
 			repo.Add( invoice );
 
-			var paymentProcessor = new InvoiceService( repo );
+			var handlers = new IPaymentHandler[]
+			{
+    			new StandardPaymentHandler(),
+    			new CommercialPaymentHandler()
+			};
+
+			var paymentProcessor = new InvoiceService(repo, handlers);
 
 			var payment = new Payment( )
 			{
